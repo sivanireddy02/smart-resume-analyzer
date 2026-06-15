@@ -1,0 +1,101 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-void text-ink font-body antialiased;
+    min-height: 100vh;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    @apply bg-surface;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-ghost rounded-full;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-muted;
+  }
+}
+
+@layer components {
+  /* Skeleton shimmer loader */
+  .skeleton {
+    @apply bg-raised rounded-lg relative overflow-hidden;
+  }
+  .skeleton::after {
+    content: '';
+    @apply absolute inset-0;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.04) 40%,
+      rgba(255, 255, 255, 0.08) 50%,
+      rgba(255, 255, 255, 0.04) 60%,
+      transparent 100%
+    );
+    background-size: 1000px 100%;
+    animation: shimmer 1.8s linear infinite;
+  }
+
+  /* Terminal scan line effect */
+  .scan-line {
+    @apply relative overflow-hidden;
+  }
+  .scan-line::before {
+    content: '';
+    @apply absolute top-0 left-0 h-full w-1/4 opacity-30;
+    background: linear-gradient(90deg, transparent, theme('colors.cyan.DEFAULT'), transparent);
+    animation: scan 2s linear infinite;
+  }
+
+  /* Score ring SVG animation */
+  .score-ring-path {
+    stroke-dasharray: 440;
+    stroke-dashoffset: 440;
+    animation: scoreRing 1.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    animation-delay: 0.3s;
+  }
+
+  /* Tab active indicator */
+  .tab-active {
+    @apply text-cyan border-b-2 border-cyan;
+  }
+
+  /* Keyword badge */
+  .badge-matched {
+    @apply inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-mono
+           bg-emerald-dim text-emerald-bright border border-emerald/20
+           transition-all duration-150 hover:border-emerald/50 hover:shadow-glow-emerald;
+  }
+  .badge-missing {
+    @apply inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-mono
+           bg-rose-dim text-rose border border-rose/20
+           transition-all duration-150 hover:border-rose/50 hover:shadow-glow-rose;
+  }
+
+  /* Accordion */
+  .accordion-content {
+    @apply overflow-hidden transition-all duration-300 ease-in-out;
+  }
+
+  /* Glow border on focus */
+  .input-focus {
+    @apply outline-none ring-1 ring-cyan/0 focus:ring-cyan/40 focus:border-cyan/50
+           transition-all duration-200;
+  }
+}
