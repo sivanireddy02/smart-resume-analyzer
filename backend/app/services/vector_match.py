@@ -28,7 +28,10 @@ from typing import Optional
 import numpy as np
 from chromadb import Client, Collection, EphemeralClient, PersistentClient
 from chromadb.config import Settings
-from sentence_transformers import SentenceTransformer
+
+import google.generativeai as genai
+
+genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 
 logger = logging.getLogger(__name__)
 
@@ -57,17 +60,7 @@ DEFAULT_TOP_K: int = 5
 # Model & ChromaDB singletons — instantiated once per process
 # ---------------------------------------------------------------------------
 
-@lru_cache(maxsize=1)
-def _get_encoder() -> SentenceTransformer:
-    """Load the Sentence Transformers model and cache it in-process.
 
-    The first call downloads the model weights (~90 MB for MiniLM-L6-v2)
-    from HuggingFace Hub; subsequent calls return the cached instance.
-    """
-    logger.info("Loading SentenceTransformer model '%s'…", ST_MODEL_NAME)
-    model = SentenceTransformer(ST_MODEL_NAME)
-    logger.info("Model loaded. Embedding dim: %d.", model.get_sentence_embedding_dimension())
-    return model
 
 
 def _get_chroma_client() -> Client:
@@ -123,22 +116,20 @@ class VectorMatchResult:
 # ---------------------------------------------------------------------------
 
 def _embed(text: str) -> np.ndarray:
-    """Encode *text* into a normalised L2 dense vector.
+    text = text[:MAX_ENCODE_CHARS]
 
-    Truncates to ``MAX_ENCODE_CHARS`` before encoding to stay within the
-    model's effective context window and keep latency predictable.
-
-    Returns:
-        A 1-D float32 numpy array of shape (embedding_dim,).
-    """
-    truncated = text[:MAX_ENCODE_CHARS]
-    # ``normalize_embeddings=True`` ensures dot-product == cosine similarity
-    vector: np.ndarray = _get_encoder().encode(
-        truncated,
-        normalize_embeddings=True,
-        show_progress_bar=False,
+    response = genai.embed_content(
+        model="models/text-embedding-004",
+        content=text,
+        task_type="retrieval_document"
     )
-    return vector.astype(np.float32)
+
+    vector = np.array(response["embedding"], dtype=np.float32)
+
+    # normalize
+    vector = vector / np.linalg.norm(vector)
+
+    return vector
 
 
 def _cosine_similarity(a: np.ndarray, b: np.ndarray) -> float:
