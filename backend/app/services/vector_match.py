@@ -138,7 +138,7 @@ async def embed_and_match(
     resume_id:           str,
     resume_metadata:     Optional[dict] = None,
     run_similarity_search: bool         = False,
-    top_k:               int            = DEFAULT_TOP_K,
+    top_k:               int            = 5,
 ) -> VectorMatchResult:
     """Embed a resume, store it in ChromaDB, and score it against a JD.
 
