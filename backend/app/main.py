@@ -82,9 +82,9 @@ model = genai.GenerativeModel("gemini-2.5-flash")
 MAX_UPLOAD_BYTES: int = int(os.getenv("MAX_UPLOAD_BYTES", str(10 * 1024 * 1024)))
 
 ALLOWED_ORIGINS: list[str] = os.getenv(
-    "ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:5173"
+    "ALLOWED_ORIGINS",
+    "http://localhost:3000,http://localhost:5173,https://smart-resume-analyzer-ayp4.onrender.com"
 ).split(",")
-
 # ---------------------------------------------------------------------------
 # Database — async SQLAlchemy engine + session factory
 # ---------------------------------------------------------------------------
