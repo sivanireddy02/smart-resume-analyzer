@@ -67,6 +67,10 @@ DATABASE_URL: str = os.getenv(
     "DATABASE_URL",
     "postgresql+asyncpg://postgres:root123@localhost:5432/resume_analyzer",
 )
+DATABASE_URL = DATABASE_URL.replace(
+    "postgresql://",
+    "postgresql+asyncpg://"
+)
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 print("KEY FOUND:", GEMINI_API_KEY is not None)
 genai.configure(api_key=GEMINI_API_KEY)
