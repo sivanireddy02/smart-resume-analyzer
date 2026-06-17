@@ -95,10 +95,10 @@ def _embed(text: str) -> np.ndarray:
     text = text[:MAX_ENCODE_CHARS]
 
     response = genai.embed_content(
-        model="models/text-embedding-004",
-        content=text,
-        task_type="retrieval_document"
-    )
+    model="models/embedding-001",
+    content=text,
+    task_type="retrieval_document"
+)
 
     vector = np.array(response["embedding"], dtype=np.float32)
 
