@@ -529,9 +529,9 @@ async def analyze_resume(
         status           = AnalysisStatus.COMPLETE.value,
         similarity_score = similarity_score,
         overall_score    = overall,
-        section_scores   = SectionScores(**{
-            k: section_scores_raw.get(k, 0.5)
-            for k in ("skills", "experience", "education", "formatting", "keywords")
+        section_scores = SectionScores(**{
+           k: min(max(section_scores_raw.get(k, 0.5) / 5, 0), 1)
+           for k in ("skills", "experience", "education", "formatting", "keywords")
         }),
         matched_keywords  = matched_kw,
         missing_keywords  = missing_kw,
