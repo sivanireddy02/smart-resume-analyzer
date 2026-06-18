@@ -530,7 +530,7 @@ async def analyze_resume(
         similarity_score = similarity_score,
         overall_score    = overall,
         section_scores = SectionScores(**{
-           k: min(max(section_scores_raw.get(k, 0.5) / 5, 0), 1)
+           k: min(max(float(section_scores_raw.get(k, 0.5)), 0.0), 1.0)
            for k in ("skills", "experience", "education", "formatting", "keywords")
         }),
         matched_keywords  = matched_kw,
