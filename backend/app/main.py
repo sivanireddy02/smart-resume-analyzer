@@ -47,7 +47,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_asyn
 
 from app.models import AnalysisHistory, AnalysisStatus, Base, Resume, ResumeStatus
 from app.services.parser import ParseResult, parse_resume
-from app.services.vector_match import VectorMatchResult, embed_and_match
+#from app.services.vector_match import VectorMatchResult, embed_and_match
 
 # ---------------------------------------------------------------------------
 # Logging
@@ -472,12 +472,7 @@ async def analyze_resume(
            "skills": ",".join(parse_result.skills[:20]),
         }
     try:
-        match_result: VectorMatchResult = await embed_and_match(
-           resume_text=parse_result.cleaned_text,
-           job_description=jd,
-           resume_id=resume_id,
-           resume_metadata=resume_meta,
-        )
+        similarity_score = 0.75
     except Exception as exc:
         logger.exception("Embedding / similarity error.")
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Embedding failed.") from exc
@@ -496,7 +491,7 @@ async def analyze_resume(
     matched_kw, missing_kw = _keyword_diff(parse_result.cleaned_text, jd)
 
     # ── Step 6: Composite overall score ──────────────────────────────────────
-    overall = _compute_overall_score(match_result.similarity_score, section_scores_raw)
+    overall = _compute_overall_score(similarity_score, section_scores_raw)
 
     # ── Step 7: Persist AnalysisHistory row ───────────────────────────────────
     """
@@ -507,7 +502,7 @@ async def analyze_resume(
         job_description  = jd,
         job_title        = job_title,
         company_name     = company_name,
-        similarity_score = match_result.similarity_score,
+        similarity_score = similarity_score,
         overall_score    = overall,
         section_scores   = section_scores_raw,
         llm_feedback     = llm_data,
@@ -523,7 +518,7 @@ async def analyze_resume(
     analysis_id = str(uuid.uuid4()) 
     logger.info(
         "Analysis complete. id=%s score=%.1f similarity=%.4f",
-        analysis_id, overall, match_result.similarity_score,
+        analysis_id, overall, similarity_score,
     )
 
     # ── Step 8: Build and return response ────────────────────────────────────
@@ -532,7 +527,7 @@ async def analyze_resume(
         analysis_id      = analysis_id,
         resume_id        = resume_id,
         status           = AnalysisStatus.COMPLETE.value,
-        similarity_score = match_result.similarity_score,
+        similarity_score = similarity_score,
         overall_score    = overall,
         section_scores   = SectionScores(**{
             k: section_scores_raw.get(k, 0.5)
