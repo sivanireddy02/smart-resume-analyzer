@@ -486,13 +486,19 @@ async def analyze_resume(
     llm_data = await _call_llm(parse_result.cleaned_text, jd)
 
     section_scores_raw: dict[str, float] = llm_data.get("section_scores", {})
-
+    section_scores_raw = llm_data.get("section_scores", {})
+    section_scores_raw = {
+    k: min(max(float(section_scores_raw.get(k, 0.5)), 0.0), 1.0)
+    for k in ("skills", "experience", "education", "formatting", "keywords")
+     }
+    overall = _compute_overall_score(similarity_score, section_scores_raw)
     # ── Step 5: Keyword diff ──────────────────────────────────────────────────
     matched_kw, missing_kw = _keyword_diff(parse_result.cleaned_text, jd)
 
     # ── Step 6: Composite overall score ──────────────────────────────────────
     overall = _compute_overall_score(similarity_score, section_scores_raw)
-
+    print("SECTION SCORES:", section_scores_raw)
+    print("OVERALL SCORE:", overall)
     # ── Step 7: Persist AnalysisHistory row ───────────────────────────────────
     """
     analysis_id = str(uuid.uuid4())
