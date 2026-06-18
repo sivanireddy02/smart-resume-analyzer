@@ -315,9 +315,12 @@ def _stub_llm_response() -> dict[str, Any]:
         "gaps":         ["Unable to generate — LLM unavailable."],
         "suggestions":  ["Configure LLM_API_KEY to enable AI feedback."],
         "rewrite_tips": [],
-        "section_scores": {
-            "skills": 0.5, "experience": 0.5,
-            "education": 0.5, "formatting": 0.5, "keywords": 0.5,
+        "section_scores":{
+            "skills":1.0, 
+            "experience":1.0,
+            "education":1.0,
+            "formatting":1.0,
+            "keywords":1.0
         },
         "tokens_used": 0,
     }
@@ -485,16 +488,47 @@ async def analyze_resume(
     logger.info("Requesting LLM feedback for resume '%s'…", resume_id)
     llm_data = await _call_llm(parse_result.cleaned_text, jd)
 
-    section_scores_raw: dict[str, float] = llm_data.get("section_scores", {})
-    section_scores_raw = llm_data.get("section_scores", {})
-    section_scores_raw = {
-    k: min(max(float(section_scores_raw.get(k, 0.5)), 0.0), 1.0)
-    for k in ("skills", "experience", "education", "formatting", "keywords")
-     }
-    overall = _compute_overall_score(similarity_score, section_scores_raw)
+    
     # ── Step 5: Keyword diff ──────────────────────────────────────────────────
     matched_kw, missing_kw = _keyword_diff(parse_result.cleaned_text, jd)
+      # Deterministic section scores
 
+     # Keywords
+    keywords_score = (
+      len(matched_kw) / (len(matched_kw) + len(missing_kw))
+      if (matched_kw or missing_kw) else 0.5
+    )
+
+     # Skills
+    skills_score = keywords_score
+
+     # Experience
+    experience_score = 1.0 if parse_result.projects else 0.5
+
+     # Education
+    education_score = 1.0 if parse_result.education else 0.5
+
+     # Formatting
+    sections_present = sum([
+      bool(parse_result.skills),
+      bool(parse_result.projects),
+      bool(parse_result.education),
+      bool(parse_result.contact),
+    ])
+    formatting_score = sections_present / 4
+
+    section_scores_raw = {
+      "skills": skills_score,
+      "experience": experience_score,
+      "education": education_score,
+      "formatting": formatting_score,
+      "keywords": keywords_score, 
+    }
+
+    overall = _compute_overall_score(similarity_score, section_scores_raw)
+
+    print("SECTION SCORES:", section_scores_raw)
+    print("OVERALL SCORE:", overall)
     # ── Step 6: Composite overall score ──────────────────────────────────────
     overall = _compute_overall_score(similarity_score, section_scores_raw)
     print("SECTION SCORES:", section_scores_raw)
