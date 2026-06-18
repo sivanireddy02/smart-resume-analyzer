@@ -541,7 +541,7 @@ async def analyze_resume(
         gaps              = llm_data.get("gaps", []),
         suggestions       = llm_data.get("suggestions", []),
         rewrite_tips      = llm_data.get("rewrite_tips", []),
-        model_used        = match_result.model_used,
+        model_used = "Gemini-2.5-Flash",
         processing_time_ms= elapsed_ms,
     )
 
