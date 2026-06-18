@@ -503,7 +503,7 @@ async def analyze_resume(
     skills_score = keywords_score
 
      # Experience
-    experience_score = 1.0 if parse_result.projects else 0.5
+    experience_score = 0.5
 
      # Education
     education_score = 1.0 if parse_result.education else 0.5
