@@ -503,19 +503,20 @@ async def analyze_resume(
     skills_score = keywords_score
 
      # Experience
-    #experience_score = 0.5
+    experience_score = 0.5
 
      # Education
-    #education_score = 0.5
+    education_score = 0.5
 
-     # Formatting
-    sections_present = sum([
-      bool(parse_result.skills),
-      bool(parse_result.projects),
-      bool(parse_result.education),
-      bool(parse_result.contact),
-    ])
-    formatting_score = sections_present / 4
+    # Formatting
+    formatting_score = 1.0
+
+    # Experience
+    experience_score = 0.5
+
+    # Education
+    education_score = 0.5
+    
 
     section_scores_raw = {
       "skills": skills_score,
