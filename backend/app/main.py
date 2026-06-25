@@ -75,7 +75,7 @@ GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 print("KEY FOUND:", GEMINI_API_KEY is not None)
 genai.configure(api_key=GEMINI_API_KEY)
 
-model = genai.GenerativeModel("gemini-1.5-flash")
+model = genai.GenerativeModel("gemini-2.5-flash")
 
 # Maximum upload size: 10 MB
 MAX_UPLOAD_BYTES: int = int(os.getenv("MAX_UPLOAD_BYTES", str(10 * 1024 * 1024)))
