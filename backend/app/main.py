@@ -126,8 +126,8 @@ async def lifespan(app: FastAPI):
     # Warm up the Sentence Transformers model in a thread so the first real
     # request doesn't incur the cold-start latency
     try:
-        from app.services.vector_match import _get_encoder   # noqa: PLC0415
-        await asyncio.to_thread(_get_encoder)
+        #from app.services.vector_match import _get_encoder   # noqa: PLC0415
+        #await asyncio.to_thread(_get_encoder)
         logger.info("Sentence Transformers model warm-up complete.")
     except Exception as exc:  # pragma: no cover
         logger.warning("Model warm-up failed (non-fatal): %s", exc)
